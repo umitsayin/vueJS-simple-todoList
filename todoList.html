@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VUE JS 3 | SIMPLE TODO LIST</title>
+    <script src="https://unpkg.com/vue@next"></script>
+<style>
+    *{
+        padding: 0;
+        margin: 0;
+    }
+    body{
+        display: flex;
+        justify-content: center;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    #app{
+        width: 1000px;
+        min-height: 600px;
+        height: auto;
+        border: 3px orangered dashed;
+        margin-top: 30px;
+    }
+    .todo-add{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin-bottom: 10px;
+        padding: 1rem;
+    }
+    .todo-add div{
+        width: 100%;
+    }
+    .todo-add input{
+        width: 70%;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 2px;
+    }
+    .todo-add button{
+        width: 20%;
+        padding: 5px;
+        background-color: green;
+        border: 1px solid #ccc;
+        border-radius: 2px;
+        color:#fff;
+    }
+    .todo-add h1{
+        width: 100%;
+        text-align: left;
+        margin: 1rem 0;
+    }
+    .todo-add span{
+        display: block;
+        margin-top: 10px;
+        background-color: darkred;
+        padding: 5px;
+        color: white;
+        font-weight: bold;
+    }
+    .todos div{
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem;
+        background-color: #f4f4f4;
+        border: 1px solid #ccc;
+    }
+    .todos div span{
+        color:red;
+        cursor:pointer;
+    }
+</style>
+<body>
+    <div id="app">
+        <div class="todo-add">
+            <h1>Add Todo</h1>
+            <div>
+                <input type="text" v-model="input" placeholder="Todo Name"><button @click="addTodo($event)">Add</button>
+                <br>
+                <span v-if="msg.isActive">{{msg.message}}</span>
+            </div>
+        </div>
+        <hr>
+        <div class="todos" v-for="item in todos" v-bind:key="item.id">
+            <div >
+                <p>{{item.mission}}</p>
+                <span @click="deleteTodo(item.id)">&#10008;</span>
+            </div>
+        </div>
+      </div>
+
+    <script>
+       const app = {
+           data(){
+               return{
+                    todos:[],
+                    input:"",
+                    msg:{
+                        isActive:false,
+                        message:""
+                    }
+               }
+           },
+           methods:{
+               addTodo(e){
+                    let control =  /^[a-zA-Z0-9-\s--]+$/.test(this.input);
+                    if(this.input.length > 10 && control){
+                            let newTodo = {id:Math.floor(Math.random()*100000),mission:this.input};
+
+                            let getTodos = JSON.parse(localStorage.getItem("todos"));
+                            getTodos.push(newTodo);
+                            localStorage.setItem("todos",JSON.stringify(getTodos));
+
+                            this.todos = JSON.parse(localStorage.getItem("todos"));
+
+                            this.input = "";
+                            this.msg.isActive = false;
+                    }else{
+                        let message = "";
+                        message = (control ? 'YOU MUST HAVE A MINIMUM of 10 CHARACTERS TO ADD A TODO!':'PLEASE DO NOT USE SPECIAL CHARACTERS !');
+                        this.msg.message = message;
+                        this.msg.isActive = true;
+                    }  
+               },
+               deleteTodo(e){
+                    var getTodos = JSON.parse(localStorage.getItem("todos"));    
+                    for(let i=0;i<getTodos.length;i++){
+                        if(getTodos[i].id === e){
+                            getTodos.splice(i,1);
+                            localStorage.setItem("todos",JSON.stringify(getTodos));
+                            this.todos = JSON.parse(localStorage.getItem("todos"));
+                            break;
+                        }
+                    }
+               }
+           },
+           created(){
+               this.todos = JSON.parse(localStorage.getItem("todos"));
+           }
+       }
+       Vue.createApp(app).mount('#app')
+    </script>
+</body>
+</html>
